@@ -96,7 +96,7 @@ abline(0, 0.25, lty = 2)
 
 ## example 4.5: partial realization of a random walk
 
-n_steps <- 500
+n_steps <- 200
 pos <- cumsum(sample(c(-1,1), size = n_steps, replace = TRUE))
 which(pos == 0)
 plot(seq(1,n_steps), pos, type = "l", xlab = "Number of Steps", 
@@ -163,13 +163,22 @@ plot_simBM <- function(A){
   }
 }
 
+
+library(plotly)
+library(ggplot2)
+library(gganimate)
+
 M <- 80 ## number of Weiner Processes.
 A <- simBM(200, 5, M)
 
-
 plot_simBM(A) ## would be very cool to overlay a 3d normal curve above this
 
+abline(a = 0, b = 2*sqrt(5)/200, col = "red")
+abline(a = 0, b = -2*sqrt(5)/200, col = "red")
+abline(a = 0, b = sqrt(5)/200, col = "blue")
+abline(a = 0, b = -sqrt(5)/200, col = "blue")
 
+## 3d scatterplot
 
 p <- plot_ly(type = "scatter3d", mode = "lines")
 
@@ -210,24 +219,17 @@ p
 
 
 
-
-abline(a = 0, b = 2*sqrt(3)/100, col = "red")
-abline(a = 0, b = -2*sqrt(3)/100, col = "red")
-abline(a = 0, b = sqrt(3)/100, col = "blue")
-abline(a = 0, b = -sqrt(3)/100, col = "blue")
-
-lines(density(A$w[100,]))
-
 ## 2d Brownian Motion Simulation
 
-install.packages("gganimate")
-install.packages("gifski")
-install.packages("transformr")
+# install.packages("plotly")
+# install.packages("gifski")
+# install.packages("transformr")
 
-library(ggplot2)
-library(gganimate)
+# library(gifski)
+# library(transformr)
 
-B <- simBM(200, t = 5, sims = 2)
+
+B <- simBM(200, t = 1, sims = 2)
 B_df <- as.data.frame(B)
 plot_simBM(B)
 p <- ggplot(B_df, aes(x = w.1, y = w.2)) +
@@ -236,9 +238,9 @@ p <- ggplot(B_df, aes(x = w.1, y = w.2)) +
   transition_reveal(t) +
   labs(title = "Time: {frame_along}")
 
-animate(p, fps = 20, width = 600, height = 600) 
+animate(p, fps = 20, width = 600, height = 600, renderer = gifski_renderer())
 
-#library(plotly)
+# library(plotly)
 
 plot_ly(
   B_df,
