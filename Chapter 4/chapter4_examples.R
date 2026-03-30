@@ -112,7 +112,7 @@ u <- runif(1)
 Tj <- 2 * (1+sum(u >pP2n))
 pP2n
 
-## the following simulates t0 the time of last return to 0 in time n
+## the following simulates t0 the time of last return to 0 within [0, n]
 n <- 200
 
 P2n <- (.5/n) * dbinom(n-1, size = 2*n -2, prob =0.5)
@@ -131,6 +131,91 @@ while(sumT <= n){
   sumT <- sumT + Tj
 }
 sumT -Tj
+
+## example 4.7
+
+simBM <- function(n, t, sims = 10){
+  times <- seq(0, t, length = n)
+  W <- matrix(numeric(n * sims), ncol = sims )
+  
+  for (i in 1:sims){
+    for (k in 1:(n-1)){
+      Zk <- rnorm(1)
+      sdk <- sqrt(times[k+1] - times[k])
+      W[k+1, i] <- W[k, i] + sdk * Zk
+    }
+  }
+  return(list(
+    t = times, w = W
+  ))
+}
+
+set.seed(1)
+
+A <- simBM(100, 3, 80)
+
+plot_simBM <- function(A){
+  r <- range(A$w)
+  d <- ncol(A$w)
+  n <- length(A$t)
+  plot(A$w[, 1], type = "l", main = paste("1-D Brownian Motion Simulation (",d," walkers, t = ", A$t[n], " secs )"), 
+       xlab = "Number of Steps", ylab = "Position", ylim = r)
+  for (j in 2:d){
+    lines(A$w[, j], lty = 2)
+  }
+}
+
+plot_simBM(A) ## would be very cool to overlay a 3d normal curve above this
+
+abline(a = 0, b = 2*sqrt(3)/100, col = "red")
+abline(a = 0, b = -2*sqrt(3)/100, col = "red")
+abline(a = 0, b = sqrt(3)/100, col = "blue")
+abline(a = 0, b = -sqrt(3)/100, col = "blue")
+
+lines(density(A$w[100,]))
+
+## 2d Brownian Motion Simulation
+
+install.packages("gganimate")
+install.packages("gifski")
+install.packages("transformr")
+
+library(ggplot2)
+library(gganimate)
+
+B <- simBM(200, t = 5, sims = 2)
+B_df <- as.data.frame(B)
+plot_simBM(B)
+p <- ggplot(B_df, aes(x = w.1, y = w.2)) +
+  geom_path(color = "blue") +
+  geom_point(size = 2, color = "red") +
+  transition_reveal(t) +
+  labs(title = "Time: {frame_along}")
+
+## animate(p, fps = 20, width = 600, height = 600) 
+
+#library(plotly)
+
+plot_ly(
+  B_df,
+  x = ~w.1,
+  y = ~w.2,
+  frame = ~t,
+  type = 'scatter',
+  mode = 'lines+markers'
+)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
