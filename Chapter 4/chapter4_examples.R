@@ -132,8 +132,9 @@ while(sumT <= n){
 }
 sumT -Tj
 
-## example 4.7
+## example 4.7: Brownian Motion Simulation
 
+## inputs: number of steps, [0, t], and number of simulations
 simBM <- function(n, t, sims = 10){
   times <- seq(0, t, length = n)
   W <- matrix(numeric(n * sims), ncol = sims )
@@ -150,10 +151,7 @@ simBM <- function(n, t, sims = 10){
   ))
 }
 
-set.seed(1)
-
-A <- simBM(100, 3, 80)
-
+## plot for 1d brownian motion
 plot_simBM <- function(A){
   r <- range(A$w)
   d <- ncol(A$w)
@@ -165,7 +163,53 @@ plot_simBM <- function(A){
   }
 }
 
+M <- 80 ## number of Weiner Processes.
+A <- simBM(200, 5, M)
+
+
 plot_simBM(A) ## would be very cool to overlay a 3d normal curve above this
+
+
+
+p <- plot_ly(type = "scatter3d", mode = "lines")
+
+for (i in 1:M){
+  p <- p %>%  add_trace(
+    x = A$t,
+    y = A$w[,i],
+    z = rep(0, length(A$t)),
+    name = paste("Path ", i),
+    line = list( color = "black"),
+    opacity = 0.8,
+    showlegend = FALSE
+  )
+}
+
+idx <- seq(20, 200, length.out = 180)  # pick 5 time slices
+
+for (k in idx){
+  t_k <- A$t[k]
+  
+  Y <- seq(min(A$w), max(A$w), length.out = 200)
+  Z <- dnorm(Y, mean = 0, sd = sqrt(t_k))/10
+  X <- rep(t_k, length(Y))
+  
+  p <- p %>% add_trace(
+    x = X,
+    y = Y,
+    z = Z,
+    mode = "lines",
+    line = list(color = "gray", width = 4),
+    name = paste("t =", round(t_k, 2)),
+    opacity = 0.2,
+    showlegend = FALSE
+  )
+}
+
+p
+
+
+
 
 abline(a = 0, b = 2*sqrt(3)/100, col = "red")
 abline(a = 0, b = -2*sqrt(3)/100, col = "red")
@@ -192,7 +236,7 @@ p <- ggplot(B_df, aes(x = w.1, y = w.2)) +
   transition_reveal(t) +
   labs(title = "Time: {frame_along}")
 
-## animate(p, fps = 20, width = 600, height = 600) 
+animate(p, fps = 20, width = 600, height = 600) 
 
 #library(plotly)
 
@@ -204,6 +248,8 @@ plot_ly(
   type = 'scatter',
   mode = 'lines+markers'
 )
+
+
 
 
 
