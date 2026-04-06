@@ -166,6 +166,129 @@ image(volcano, col = terrain.colors(100), axes = TRUE)
 contour(volcano, levels = seq(100, 200, by = 10), add = TRUE)
 
 
+X <- matrix(floor(10*runif(10*20)), ncol = 10)
+image(X, col = terrain.colors(100), axes = TRUE)
+
+
+library(MASS)
+
+x <- y <- seq(-3, 3, length = 50)
+
+Z <- matrix(numeric(50*50), ncol = 50)
+
+for (i in 1:50){
+  for (j in 1:50){
+    Z[i, j] <- dnorm(x[i], 0, 2)*dnorm(y[j], 0, 2)
+  }
+}
+
+image(round(Z,2), col = terrain.colors(100), axes = TRUE)
+contour(round(Z,2), levels = seq(0,0.25, by = 0.01), add = TRUE)
+
+library(lattice)
+filled.contour(volcano, color = terrain.colors, asp = 1)
+levelplot(volcano, scales = list(draw = FALSE),
+          xlab = "", ylab = "")
+
+## example 5.9: 2D Histogram
+
+install.packages("hexbin")
+library(hexbin)
+
+x <- matrix(rnorm(4000), 2000, 2)
+plot(hexbin(x[,1], x[,2]))
+
+## can also use ggplot version
+
+library(ggplot2)
+x <- data.frame(x)
+ggplot(x, aes(x[,1], x[,2])) + geom_hex()
+
+install.packages("gplots")
+library(gplots)
+hist2d(x, nbins = 30, 
+       col = c("white", rev(terrain.colors(30))))
+
+## example 5.10: Andrew Curves
+
+install.packages("DAAG")
+library(DAAG)
+data("leafshape17")
+df <- leafshape17
+
+View(df)
+
+f <- function(a, v){
+  v[1]/sqrt(2) + v[2]*sin(a) + v[3]*cos(a)
+}
+
+## scaling data to -1, 1
+
+x <- cbind(df$bladelen, df$petiole, df$bladewid)
+n <- nrow(x)
+mins <- apply(x, 2, min) # column minimums
+maxs <- apply(x, 2, max) # column maximums
+r <- maxs - mins
+y <- sweep(x, 2, mins)
+y <- sweep(y, 2, r, "/")
+x <- 2 * y -1
+
+## plot set up
+plot(0,0, xlim = c(-pi, pi), ylim = c(-3,3),
+     xlab = "t", ylab = "Andrew Curves", main = "",
+     type = "n")
+
+a <- seq(-pi, pi, len = 101)
+dim(a) <- length(a)
+for (i in 1:n){
+  g <- arch[i] + 1
+  y <- apply(a, MARGIN = 1, FUN = f, v = x[i,])
+  lines(a, y, lty = g)
+}
+legend(3, c("Orthotropic", "Plagiotropic"), lty = 1:2)
+
+## example 5.11" Parallel Coordinates
+
+library(lattice)
+library(MASS)
+
+x <- crabs[seq(5, 200, 5),] ## retrieves every 5th obs.
+parallelplot(~x[4:8] | sp*sex, x)
+
+
+#trellis.device(color = FALSE)
+x <- crabs[seq(5, 200, 5),]
+a <- x$CW * x$CL
+
+
+x[4:8] <- x[4:8] / sqrt(a)
+
+
+parallelplot(~x[4:8] | sp*sex, x)
+
+## example 5.12: segment plot
+
+x <- MASS::crabs[seq(5, 200, 5),]
+x <- subset(x, sex == "M")
+a <- x$CW * x$CL
+X[4:8] <- x[4:8] / sqrt(a)
+palette("default")
+stars(x[4:8], draw.segments = TRUE,
+      labels = levels(x$sp), nrow = 4,
+      ylim = c(-2, 10), key.loc = c(3, -1))
+dim(x[4:8])
+
+##
+
+
+
+
+
+
+
+
+
+
 
 
 
