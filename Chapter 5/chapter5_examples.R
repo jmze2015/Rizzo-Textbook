@@ -279,22 +279,61 @@ stars(x[4:8], draw.segments = TRUE,
 dim(x[4:8])
 
 ##
+library(bootstrap)
+str(scor)
+head(scor)
+pairs(scor)
+cor(scor)
 
 
+n <- nrow(scor)
+## center and scale in one go i.e. standardize x
+x <- scale(scor)
+s <- cov(x)
+e <- eigen(s)
+lam <- e$values
+P <- e$vectors
 
 
+plot(lam, type = "b", xlab = "eigenvalues", main = "")
+barplot(lam, xlab = "eigenvalues")
+
+tab <- rbind(lam / sum(lam), cumsum(lam)/sum(lam))
+tab
+
+z <- x %*% P
+dim(z)
+head(z)
+
+## how to get principle components (easier way)
+
+pc <- prcomp(scor, center = TRUE, scale = TRUE)
+summary(pc)
+
+pc$rotation
+
+df <- scor[1:4,]
+predict(pc, newdata = df)
 
 
+head(P)
+head(pc$rotation)
+
+## example 5.14 PC Biplot
+
+biplot(pc, pc.biplot = TRUE)
+
+round(cor(x,z),3)
 
 
+## example 5.15 PCA using correlation instead of covariance
 
-
-
-
-
-
-
-
+library(FactoMineR)
+data(decathlon)
+pc <- princomp(decathlon[,1:10], cor = TRUE, scores = TRUE)
+plot(pc)
+biplot(pc)
+summary(pc)
 
 
 
